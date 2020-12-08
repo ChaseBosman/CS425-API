@@ -26,7 +26,6 @@ public class Demo
         gridURI = gridURI.replace("\"", "");
         
         JsonNode gridProperties = restTemplate.getForObject(gridURI, JsonNode.class);
-        
         return gridProperties.at("/properties/maxTemperature/values").toPrettyString();
     }
 }
