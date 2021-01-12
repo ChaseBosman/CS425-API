@@ -1,23 +1,33 @@
 package com.NotJustAWeatherApp.API.RouteController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.*;
-import org.apache.commons.logging.Log;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 // mark this class as a com.NotJustAWeatherApp.api.api.controller to handle /demo requests
 
 @RestController
+//http://localhost:8080/weather/multiple?city1=Brentwood&city2=Antioch&state1=CA&state2=CA
 @RequestMapping(value = "/weather")
 public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
     @GetMapping(value = "/multiple")
-    public String getDemoData() {
+    public String getDemoData(@RequestParam Map<String,String> requestParams) throws JsonProcessingException {
+        String start_city = requestParams.get("city1");
+        String end_city = requestParams.get("city2");
+        String start_state = requestParams.get("state1");
+        String end_state = requestParams.get("state2");
 
+        String start_location = start_city + ',' + start_state;
+        String end_location = end_city + ',' + end_state;
         //Define list to get all latlng for the route
         List<LatLng> path = new ArrayList();
 
@@ -25,7 +35,8 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyAsxeRqO3WL308LSQdWPD1eOAUNmEw2_QA")
                 .build();
-        DirectionsApiRequest req = DirectionsApi.getDirections(context, "Brentwood,CA", "Antioch,CA");
+
+        DirectionsApiRequest req = DirectionsApi.getDirections(context, start_location, end_location);
         try {
             DirectionsResult res = req.await();
 
@@ -70,5 +81,11 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
             return ex.getLocalizedMessage();
         }
         return "Its sunny the entire way!" + path;
+
+        //list by next 7 days
+        //min temp max temp
+        //10 miles?
+        //predicted weather at that time of year
+        //drop down menu?
     }
 }
