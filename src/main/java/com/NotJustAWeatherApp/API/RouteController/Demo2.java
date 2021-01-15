@@ -20,11 +20,14 @@ import java.util.Map;
 @RequestMapping(value = "/weather")
 public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
     @GetMapping(value = "/multiple")
+
+
     public String getDemoData(@RequestParam Map<String,String> requestParams) throws JsonProcessingException {
         String start_city = requestParams.get("city1");
         String end_city = requestParams.get("city2");
         String start_state = requestParams.get("state1");
         String end_state = requestParams.get("state2");
+        int count = 0;
 
         String start_location = start_city + ',' + start_state;
         String end_location = end_city + ',' + end_state;
@@ -58,6 +61,7 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
                                             //Decode polyline and add points to list of route coordinates
                                             List<com.google.maps.model.LatLng> coords1 = points1.decodePath();
                                             for (com.google.maps.model.LatLng coord1 : coords1) {
+                                                count++;
                                                 path.add(new LatLng(coord1.lat, coord1.lng));
                                             }
                                         }
@@ -69,6 +73,7 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
                                         List<com.google.maps.model.LatLng> coords = points.decodePath();
                                         for (com.google.maps.model.LatLng coord : coords) {
                                             path.add(new LatLng(coord.lat, coord.lng));
+                                            count++;
                                         }
                                     }
                                 }
@@ -80,7 +85,36 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
         } catch (Exception ex) {
             return ex.getLocalizedMessage();
         }
-        return "Its sunny the entire way!" + path;
+
+        //find distance
+        LatLng beginning = path.get(0);
+        LatLng end = path.get(path.size()-1);
+        double lon1 = 0, lat1 = 0, lon2 = 0, lat2 = 0;
+        lat1 = beginning.lat;
+        lon1 = beginning.lng;
+        lat2 = end.lat;
+        lon2 = end.lng;
+        lon1 = Math.toRadians(lon1);
+        lon2 = Math.toRadians(lon2);
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+
+        //calculation
+        double dist = 0;
+        double dlon = lon2 - lon1;
+        double dlat = lat2 - lat1;
+        double a = Math.pow(Math.sin(dlat / 2), 2)
+                + Math.cos(lat1) * Math.cos(lat2)
+                * Math.pow(Math.sin(dlon / 2),2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double r = 6371;
+
+        // calculate the result
+        dist = c * r;
+        dist = Math.round(dist * 100);
+        dist = dist/100;
+
+        return "The total distance is " + dist + " miles. "+ "Its sunny the entire way! there are " + count + " points. " + " The midpoint is: " + path.get(count/2) + ". The entire path is: " + path ;
 
         //list by next 7 days
         //min temp max temp
@@ -88,4 +122,7 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
         //predicted weather at that time of year
         //drop down menu?
     }
+
+
+
 }
