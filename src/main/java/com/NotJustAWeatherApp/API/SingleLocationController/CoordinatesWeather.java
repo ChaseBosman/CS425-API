@@ -14,8 +14,10 @@ import java.util.Map;
 // mark this class as a com.NotJustAWeatherApp.api.api.controller to handle /demo requests
 
 @RestController
+//http://localhost:8080/weather/single?lat=39.7456&lon=-97.0892
+
 @RequestMapping(value = "/weather")
-public class Demo
+public class CoordinatesWeather
 {
     @Autowired
     private RestTemplate restTemplate;

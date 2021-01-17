@@ -1,24 +1,31 @@
 package com.NotJustAWeatherApp.API.RouteController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-// mark this class as a com.NotJustAWeatherApp.api.api.controller to handle /demo requests
 
 @RestController
 //http://localhost:8080/weather/multiple?city1=Brentwood&city2=Antioch&state1=CA&state2=CA
+
 @RequestMapping(value = "/weather")
-public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
+public class RouteWeather {    // create GET endpoint to serve demo data at /demo/data
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     @GetMapping(value = "/multiple")
     public String getDemoData(@RequestParam Map<String,String> requestParams) throws JsonProcessingException {
         String start_city = requestParams.get("city1");
@@ -32,6 +39,7 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
         List<LatLng> path = new ArrayList();
 
         //Execute Directions API request
+        //REMOVE THIS API KEY
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyAsxeRqO3WL308LSQdWPD1eOAUNmEw2_QA")
                 .build();
@@ -80,12 +88,62 @@ public class Demo2 {    // create GET endpoint to serve demo data at /demo/data
         } catch (Exception ex) {
             return ex.getLocalizedMessage();
         }
-        return "Its sunny the entire way!" + path;
 
-        //list by next 7 days
-        //min temp max temp
-        //10 miles?
-        //predicted weather at that time of year
-        //drop down menu?
+        List<LatLng> weather_coordinates = new ArrayList();
+        double dist = 0;
+        double lon1 = 0, lat1 = 0, lon2 = 0, lat2 = 0;
+        LatLng beginning = path.get(0);
+        LatLng end = path.get(0);
+        weather_coordinates.add(beginning);
+
+        double p = Math.PI / 180;
+
+        for(int position = 1; position < path.size(); position++)
+        {
+            end = path.get(position);
+            lat1 = beginning.lat;
+            lon1 = beginning.lng;
+            lat2 = end.lat;
+            lon2 = end.lng;
+
+            dist = .5 - Math.cos((lat2-lat1)*p)/2 + Math.cos(lat1*p) * Math.cos(lat2*p) * (1-Math.cos((lon2-lon1)*p))/2;
+            dist = Math.sqrt(dist);
+            dist = Math.asin(dist) * 12742;
+            dist = dist * .621371;
+
+            if(dist >= 10){
+                weather_coordinates.add(end);
+                beginning = end;
+            }
+        }
+        weather_coordinates.add(end);
+
+        List<JsonNode> path_weather = new ArrayList();
+
+        for(int position = 0; position < weather_coordinates.size(); position++)
+        {
+            double lat = weather_coordinates.get(position).lat;
+            double lon = weather_coordinates.get(position).lng;
+            final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
+
+            JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
+            String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
+            gridURI = gridURI.replace("\"", "");
+
+            path_weather.add(restTemplate.getForObject(gridURI, JsonNode.class));
+        }
+
+        return "Max temps for coord 1 " + path_weather.get(0).at("/properties/maxTemperature/values").toPrettyString();
+
+        //later add predicted weather if outside of window for forecasting
+        //allow support for front end drop down menu to select what specific weather statistics?
+    }
+
+    private double rad2deg(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private double deg2rad(double rad) {
+        return (rad * 180.0 / Math.PI);
     }
 }
