@@ -1,11 +1,11 @@
-package com.NotJustAWeatherApp.API.RouteController;
+package com.NotJustAWeatherApp.API.RouteWeatherController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.*;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
     private RestTemplate restTemplate;
 
     @GetMapping(value = "/multiple")
-    public String getDemoData(@RequestParam Map<String,String> requestParams) throws JsonProcessingException {
+    public String getDemoData(@RequestParam Map<String,String> requestParams) throws JSONException {
         String start_city = requestParams.get("city1");
         String end_city = requestParams.get("city2");
         String start_state = requestParams.get("state1");
@@ -118,7 +118,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         }
         weather_coordinates.add(end);
 
-        List<JsonNode> path_weather = new ArrayList();
+        List<JsonNode> route_weather_responses = new ArrayList();
 
         for (LatLng weather_coordinate : weather_coordinates) {
             double lat = weather_coordinate.lat;
@@ -129,10 +129,13 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
             String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
             gridURI = gridURI.replace("\"", "");
 
-            path_weather.add(restTemplate.getForObject(gridURI, JsonNode.class));
+            route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
         }
 
-        return "Max temps for coord 1 " + path_weather.get(0).at("/properties/maxTemperature/values").toPrettyString();
+        ResponseBuilder response = new ResponseBuilder();
+        response.buildResponse(route_weather_responses);
+
+        return response.getResponse();
 
         //later add predicted weather if outside of window for forecasting
         //allow support for front end drop down menu to select what specific weather statistics?

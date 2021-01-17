@@ -1,4 +1,4 @@
-package com.NotJustAWeatherApp.API.SingleLocationController;
+package com.NotJustAWeatherApp.API.SingleLocationWeatherController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
