@@ -90,8 +90,8 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         }
 
         List<LatLng> weather_coordinates = new ArrayList();
-        double dist = 0;
-        double lon1 = 0, lat1 = 0, lon2 = 0, lat2 = 0;
+        double dist;
+        double lon1, lat1, lon2, lat2;
         LatLng beginning = path.get(0);
         LatLng end = path.get(0);
         weather_coordinates.add(beginning);
@@ -120,10 +120,9 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
 
         List<JsonNode> path_weather = new ArrayList();
 
-        for(int position = 0; position < weather_coordinates.size(); position++)
-        {
-            double lat = weather_coordinates.get(position).lat;
-            double lon = weather_coordinates.get(position).lng;
+        for (LatLng weather_coordinate : weather_coordinates) {
+            double lat = weather_coordinate.lat;
+            double lon = weather_coordinate.lng;
             final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
 
             JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
@@ -137,13 +136,5 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
 
         //later add predicted weather if outside of window for forecasting
         //allow support for front end drop down menu to select what specific weather statistics?
-    }
-
-    private double rad2deg(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
-
-    private double deg2rad(double rad) {
-        return (rad * 180.0 / Math.PI);
     }
 }
