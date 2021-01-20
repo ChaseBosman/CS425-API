@@ -38,10 +38,12 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         //Define list to get all latlng for the route
         List<LatLng> path = new ArrayList();
 
+        ApiKey keyGrabber = new ApiKey();
+
         //Execute Directions API request
         //REMOVE THIS API KEY
         GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey("AIzaSyAsxeRqO3WL308LSQdWPD1eOAUNmEw2_QA")
+                .apiKey(keyGrabber.getGoogleKey())
                 .build();
 
         DirectionsApiRequest req = DirectionsApi.getDirections(context, start_location, end_location);

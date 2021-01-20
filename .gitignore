@@ -2,8 +2,10 @@ HELP.md
 target/
 .mvn/
 .mvn/wrapper/maven-wrapper.jar
+src/main/java/com/NotJustAWeatherApp/API/RouteWeatherController/ApiKey.java
 !**/src/main/**/target/
 !**/src/test/**/target/
+
 
 ### STS ###
 .apt_generated
@@ -32,3 +34,4 @@ build/
 
 ### VS Code ###
 .vscode/
+
