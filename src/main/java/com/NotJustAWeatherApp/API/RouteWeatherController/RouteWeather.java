@@ -123,19 +123,21 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         List<JsonNode> route_weather_responses = new ArrayList();
 
         for (LatLng weather_coordinate : weather_coordinates) {
-            double lat = weather_coordinate.lat;
-            double lon = weather_coordinate.lng;
-            final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
+            if(weather_coordinate!= null){
+                double lat = weather_coordinate.lat;
+                double lon = weather_coordinate.lng;
+                final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
 
-            JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
-            String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
-            gridURI = gridURI.replace("\"", "");
+                JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
+                String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
+                gridURI = gridURI.replace("\"", "");
 
-            route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
+                route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
+            }
         }
 
-        ResponseBuilder response = new ResponseBuilder();
-        response.buildResponse(route_weather_responses);
+        ResponseBuilder response = new ResponseBuilder(route_weather_responses);
+        response.buildResponse();
 
         return response.getResponse();
 
