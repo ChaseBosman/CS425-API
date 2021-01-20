@@ -1,6 +1,7 @@
 package com.NotJustAWeatherApp.API.RouteWeatherController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,16 +22,20 @@ public class ResponseBuilder {
     {
 
         List<JSONObject> dayJsonObjects = new ArrayList();
+        JSONObject dayForecasts = new JSONObject();
 
         for(int currentDay = 0; currentDay < 8; ++currentDay)
         {
             dayJsonObjects.add(new JSONObject());
             dayJsonObjects.get(currentDay).put("max",getMaxTempValue(currentDay));
             dayJsonObjects.get(currentDay).put("min",getMinTempValue(currentDay));
-            this.response.put("Day" + Integer.toString(currentDay), dayJsonObjects.get(currentDay));
+            dayForecasts.put("Day" + Integer.toString(currentDay), dayJsonObjects.get(currentDay));
         }
 
-        //this.response.put("Status", "Success");
+        JSONArray forecast = new JSONArray();
+        forecast.put(dayForecasts);
+        this.response.put("Forecast Data", forecast);
+        this.response.put("Status", "Success");
     }
 
     float getMaxTempValue(int day)

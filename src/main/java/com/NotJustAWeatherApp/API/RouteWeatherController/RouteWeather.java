@@ -6,28 +6,31 @@ import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.model.*;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 //http://localhost:8080/weather/multiple?city1=Brentwood&city2=Antioch&state1=CA&state2=CA
 
-@RequestMapping(value = "/weather")
+@RequestMapping(value = "/weather", produces = "application/json")
 public class RouteWeather {    // create GET endpoint to serve demo data at /demo/data
 
     @Autowired
     private RestTemplate restTemplate;
 
     @GetMapping(value = "/multiple")
-    public String getDemoData(@RequestParam Map<String,String> requestParams) throws JSONException {
+    public String getDemoData(@RequestParam Map<String,String> requestParams) throws JSONException, InterruptedException {
         String start_city = requestParams.get("city1");
         String end_city = requestParams.get("city2");
         String start_state = requestParams.get("state1");
@@ -88,7 +91,9 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
                 }
             }
         } catch (Exception ex) {
-            return ex.getLocalizedMessage();
+            JSONObject response =  new JSONObject();
+            response.put("Error:", ex);
+            return ex.toString();
         }
 
         List<LatLng> weather_coordinates = new ArrayList();
@@ -113,7 +118,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
             dist = Math.asin(dist) * 12742;
             dist = dist * .621371;
 
-            if(dist >= 10){
+            if(dist >= 15){
                 weather_coordinates.add(end);
                 beginning = end;
             }
@@ -121,18 +126,32 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         weather_coordinates.add(end);
 
         List<JsonNode> route_weather_responses = new ArrayList();
+        int val = 0;
 
         for (LatLng weather_coordinate : weather_coordinates) {
-            if(weather_coordinate!= null){
-                double lat = weather_coordinate.lat;
-                double lon = weather_coordinate.lng;
-                final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
 
-                JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
-                String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
-                gridURI = gridURI.replace("\"", "");
+            int count = 0;
+            int maxTries = 3;
+            while(true)
+            {
+                try {
+                    if(weather_coordinate!= null){
+                        double lat = weather_coordinate.lat;
+                        double lon = weather_coordinate.lng;
+                        final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
 
-                route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
+                        JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
+                        String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
+                        gridURI = gridURI.replace("\"", "");
+
+                        route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
+                        break;
+                    }
+                } catch (HttpServerErrorException e) {
+                    // handle exception
+                    TimeUnit.SECONDS.sleep(1);
+                    if (++count == maxTries) throw e;
+                }
             }
         }
 
