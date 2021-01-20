@@ -10,8 +10,8 @@ import java.util.List;
 
 public class ResponseBuilder {
 
-    JSONObject response =  new JSONObject();
-    List<JsonNode> route_weather_responses;
+    private volatile JSONObject response =  new JSONObject();
+    private volatile List<JsonNode> route_weather_responses;
 
     ResponseBuilder(List<JsonNode> route_weather_responses)
     {
