@@ -46,9 +46,12 @@ public class ResponseBuilder {
         {
             String atValue = "/properties/maxTemperature/values/" + Integer.toString(day) + "/value";
             String data = route.at(atValue).toPrettyString();
-            float currVal = Float.parseFloat(data);
-            if (currVal > maxVal)
-                maxVal = currVal;
+            if(!data.isEmpty())
+            {
+                float currVal = Float.parseFloat(data);
+                if (currVal > maxVal)
+                    maxVal = currVal;
+            }
         }
 
         return maxVal;
@@ -62,9 +65,12 @@ public class ResponseBuilder {
         {
             String atValue = "/properties/minTemperature/values/" + Integer.toString(day) + "/value";
             String data = route.at(atValue).toPrettyString();
-            float currVal = Float.parseFloat(data);
-            if (currVal < minVal)
-                minVal = currVal;
+            if(!data.isEmpty())
+            {
+                float currVal = Float.parseFloat(data);
+                if (currVal < minVal)
+                    minVal = currVal;
+            }
         }
 
         return minVal;
