@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 //http://localhost:8080/weather/single?lat=39.7456&lon=-97.0892
 
-@RequestMapping(value = "/weather")
+@RequestMapping(value = "/weather", produces = "application/json")
 public class CoordinatesWeather
 {
     @Autowired
