@@ -8,12 +8,15 @@ import com.google.maps.model.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.apache.http.impl.client.HttpClients;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +29,10 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/weather", produces = "application/json")
 public class RouteWeather {    // create GET endpoint to serve demo data at /demo/data
 
+    ClientHttpRequestFactory requestFactory = new
+            HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate(requestFactory);
 
     @GetMapping(value = "/multiple")
     public String getDemoData(@RequestParam Map<String,String> requestParams) throws JSONException, InterruptedException {
@@ -38,6 +43,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
 
         String start_location = start_city + ',' + start_state;
         String end_location = end_city + ',' + end_state;
+
         //Define list to get all latlng for the route
         List<LatLng> path = new ArrayList();
 
@@ -143,8 +149,8 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
                         JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
                         String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
                         gridURI = gridURI.replace("\"", "");
-
-                        route_weather_responses.add(restTemplate.getForObject(gridURI, JsonNode.class));
+                        JsonNode response = restTemplate.getForObject(gridURI, JsonNode.class);
+                        route_weather_responses.add(response);
                         break;
                     }
                 } catch (HttpServerErrorException e) {
