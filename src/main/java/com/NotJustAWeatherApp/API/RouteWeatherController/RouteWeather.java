@@ -156,7 +156,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
                 } catch (HttpServerErrorException e) {
                     // handle exception
                     TimeUnit.SECONDS.sleep(count+1);
-                    if (++count == maxTries) throw e;
+                    if (++count == maxTries) break;
                 }
             }
         }
