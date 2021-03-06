@@ -3,10 +3,7 @@ package com.NotJustAWeatherApp.API.SingleLocationWeatherController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -22,6 +19,7 @@ public class CoordinatesWeather
     @Autowired
     private RestTemplate restTemplate;
 
+    @CrossOrigin
     @GetMapping(value = "/single")
     public String getDemoData(@RequestParam Map<String,String> requestParams) throws JsonProcessingException {
         String lat = requestParams.get("lat");

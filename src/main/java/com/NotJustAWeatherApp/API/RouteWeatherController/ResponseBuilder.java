@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ResponseBuilder {
 
-    private volatile JSONObject response =  new JSONObject();
+    private volatile JSONArray response = new JSONArray();
     private volatile List<JsonNode> route_weather_responses;
 
     ResponseBuilder(List<JsonNode> route_weather_responses)
@@ -21,21 +21,17 @@ public class ResponseBuilder {
     void buildResponse() throws JSONException
     {
 
-        List<JSONObject> dayJsonObjects = new ArrayList();
+        // List<JSONObject> dayJsonObjects = new ArrayList();
         JSONObject dayForecasts = new JSONObject();
 
         for(int currentDay = 0; currentDay < 8; ++currentDay)
         {
-            dayJsonObjects.add(new JSONObject());
-            dayJsonObjects.get(currentDay).put("max",getMaxTempValue(currentDay));
-            dayJsonObjects.get(currentDay).put("min",getMinTempValue(currentDay));
-            dayForecasts.put("Day" + Integer.toString(currentDay), dayJsonObjects.get(currentDay));
+            JSONObject dayForecast = new JSONObject();
+            dayForecast.put("date",getDate(currentDay));
+            dayForecast.put("max",getMaxTempValue(currentDay));
+            dayForecast.put("min",getMinTempValue(currentDay));
+            this.response.put(dayForecast);
         }
-
-        JSONArray forecast = new JSONArray();
-        forecast.put(dayForecasts);
-        this.response.put("Forecast Data", forecast);
-        this.response.put("Status", "Success");
     }
 
     float getMaxTempValue(int day)
@@ -55,6 +51,20 @@ public class ResponseBuilder {
         }
 
         return maxVal;
+    }
+
+    String getDate(int day)
+    {
+        for(JsonNode route: route_weather_responses)
+        {
+            String atValue = "/properties/maxTemperature/values/" + Integer.toString(day) + "/validTime";
+            String data = route.at(atValue).toPrettyString();
+            if(!data.isEmpty())
+            {
+                return data;
+            }
+        }
+        return "";
     }
 
     float getMinTempValue(int day)

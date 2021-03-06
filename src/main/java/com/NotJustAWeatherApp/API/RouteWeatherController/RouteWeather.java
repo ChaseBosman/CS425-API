@@ -10,10 +10,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.apache.http.impl.client.HttpClients;
@@ -34,6 +31,7 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
     @Autowired
     private RestTemplate restTemplate = new RestTemplate(requestFactory);
 
+    @CrossOrigin
     @GetMapping(value = "/multiple")
     public String getDemoData(@RequestParam Map<String,String> requestParams) throws JSONException, InterruptedException {
         String start_city = requestParams.get("city1");
