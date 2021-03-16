@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.apache.http.impl.client.HttpClients;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -132,8 +133,10 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
         List<JsonNode> route_weather_responses = new ArrayList();
         int val = 0;
 
+        Map<String, String> uriVariables = new HashMap<>();
+        final String pointsURI = "https://api.weather.gov/points/{lat},{lon}";
+        
         for (LatLng weather_coordinate : weather_coordinates) {
-
             int count = 0;
             int maxTries = 3;
             while(true)
@@ -142,9 +145,12 @@ public class RouteWeather {    // create GET endpoint to serve demo data at /dem
                     if(weather_coordinate!= null){
                         double lat = weather_coordinate.lat;
                         double lon = weather_coordinate.lng;
-                        final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
+                        //final String pointsURI = "https://api.weather.gov/points/" + lat + ',' + lon;
+                        //final String pointsURI = "https://api.weather.gov/points/{lat},{lon}";
 
-                        JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class);
+                        uriVariables.put("lat", String.valueOf(lat));
+                        uriVariables.put("lon", String.valueOf(lon));
+                        JsonNode pointProperties = restTemplate.getForObject(pointsURI, JsonNode.class, uriVariables);
                         String gridURI = pointProperties.get("properties").get("forecastGridData").toString();
                         gridURI = gridURI.replace("\"", "");
                         JsonNode response = restTemplate.getForObject(gridURI, JsonNode.class);
