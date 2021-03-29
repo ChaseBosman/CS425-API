@@ -79,14 +79,20 @@ public class ResponseBuilder {
         float maxVal = -100;
 
         for(JsonNode route: route_weather_responses) {
-            String atValue = "/properties/windSpeed/values";
-            String data = route.at(atValue).toPrettyString();
-            System.out.println(data);
-            
-            /*ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(new File("user.json"));
-            List<JsonNode> listOfNodes = rootNode.findParents("first");
-            System.out.println(listOfNodes.size());
+            String atValue = "/properties/windSpeed/values/";
+
+            String response = " ";
+            int accumulator = 0;
+
+            while(!response.equals(""))
+            {
+                response = route.at(atValue + accumulator+ "/value").toPrettyString();
+                accumulator++;
+                System.out.println(accumulator + " "+ response);
+            }
+
+            /*/String data = route.at(atValue).toPrettyString();
+            //System.out.println(data);
 
             if(!data.isEmpty())
             {
