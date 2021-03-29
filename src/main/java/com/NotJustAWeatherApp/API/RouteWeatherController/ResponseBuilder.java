@@ -1,11 +1,10 @@
 package com.NotJustAWeatherApp.API.RouteWeatherController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ResponseBuilder {
@@ -30,6 +29,7 @@ public class ResponseBuilder {
             dayForecast.put("date",getDate(currentDay));
             dayForecast.put("max",getMaxTempValue(currentDay));
             dayForecast.put("min",getMinTempValue(currentDay));
+            getWindSpeed(currentDay);
             this.response.put(dayForecast);
         }
     }
@@ -65,6 +65,43 @@ public class ResponseBuilder {
             }
         }
         return "";
+    }
+
+    String getWindSpeed(int day)
+    {
+        String initial_date = getDate((0));
+        int curr_day = Integer.parseInt(initial_date.substring(9,11));
+        int curr_month = Integer.parseInt(initial_date.substring(6,8));
+        int curr_year = Integer.parseInt(initial_date.substring(1,5));
+        String searched_date = DateConverter.addDays(curr_day, curr_month, curr_year, day);
+        System.out.println(searched_date);
+
+        float maxVal = -100;
+
+        for(JsonNode route: route_weather_responses) {
+            String atValue = "/properties/windSpeed/values";
+            String data = route.at(atValue).toPrettyString();
+            System.out.println(data);
+            
+            /*ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(new File("user.json"));
+            List<JsonNode> listOfNodes = rootNode.findParents("first");
+            System.out.println(listOfNodes.size());
+
+            if(!data.isEmpty())
+            {
+                float currVal = Float.parseFloat(data);
+                if (currVal > maxVal)
+                    maxVal = currVal;
+            }
+        }
+
+        return String.valueOf(maxVal);
+
+             */
+        }
+        return "";
+        //find data for searched data
     }
 
     float getMinTempValue(int day)
