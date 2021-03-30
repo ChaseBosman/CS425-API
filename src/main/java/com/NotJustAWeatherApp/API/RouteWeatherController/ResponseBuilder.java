@@ -19,8 +19,6 @@ public class ResponseBuilder {
 
     void buildResponse() throws JSONException
     {
-        JSONObject dayForecasts = new JSONObject();
-
         for(int currentDay = 0; currentDay < 8; ++currentDay)
         {
             JSONObject dayForecast = new JSONObject();
@@ -31,6 +29,10 @@ public class ResponseBuilder {
             dayForecast.put("maxWindGust",getWindGust(currentDay));
             dayForecast.put("maxHumidity",getMaxHumidity(currentDay));
             dayForecast.put("minHumidity",getMinHumidity(currentDay));
+            dayForecast.put("maxSnowfallTotal",getMaxSnowfallTotal(currentDay));
+            dayForecast.put("maxQuantitativePrecipitation",getMaxQuantitativePrecipitation(currentDay));
+            dayForecast.put("maxAvgProbabilityOfPrecipitation",getMaxAvgProbabilityOfPrecipitation(currentDay));
+            dayForecast.put("maxProbabilityOfPrecipitation",getMaxProbabilityOfPrecipitation(currentDay));
 
             float visibility = getMinVisibility(currentDay);
             if(visibility < Float.MAX_VALUE - 1) {
@@ -61,6 +63,157 @@ public class ResponseBuilder {
         }
 
         return maxVal;
+    }
+
+    float getMaxAvgProbabilityOfPrecipitation(int day)
+    {
+        String initial_date = getDate((0));
+        int curr_day = Integer.parseInt(initial_date.substring(8,10));
+        int curr_month = Integer.parseInt(initial_date.substring(5,7));
+        int curr_year = Integer.parseInt(initial_date.substring(0,4));
+        String searched_date = DateConverter.addDays(curr_day, curr_month, curr_year, day);
+
+        float max_avg = 0;
+
+        for(JsonNode route: route_weather_responses)
+        {
+            String atValue = "/properties/probabilityOfPrecipitation/values/";
+            float sum = 0;
+            int count = 0;
+            String value_response = " ";
+            String date_response = "";
+            int accumulator = 0;
+
+            while (!value_response.equals(""))
+            {
+                value_response = route.at(atValue + accumulator + "/value").toPrettyString();
+                date_response = route.at(atValue + accumulator + "/validTime").toPrettyString();
+                accumulator++;
+                if (!value_response.equals("") && date_response.contains(searched_date))
+                {
+                    sum += Float.parseFloat(value_response);
+                    count++;
+                }
+            }
+
+            float avg = sum / count;
+            if(avg > max_avg)
+            {
+                max_avg = avg;
+            }
+        }
+        return max_avg;
+    }
+
+    float getMaxProbabilityOfPrecipitation(int day)
+    {
+        String initial_date = getDate((0));
+        int curr_day = Integer.parseInt(initial_date.substring(8,10));
+        int curr_month = Integer.parseInt(initial_date.substring(5,7));
+        int curr_year = Integer.parseInt(initial_date.substring(0,4));
+        String searched_date = DateConverter.addDays(curr_day, curr_month, curr_year, day);
+
+        float max_value = 0;
+
+        for(JsonNode route: route_weather_responses)
+        {
+            String atValue = "/properties/probabilityOfPrecipitation/values/";
+            float value = 0;
+            String value_response = " ";
+            String date_response = "";
+            int accumulator = 0;
+
+            while (!value_response.equals(""))
+            {
+                value_response = route.at(atValue + accumulator + "/value").toPrettyString();
+                date_response = route.at(atValue + accumulator + "/validTime").toPrettyString();
+                accumulator++;
+                if (!value_response.equals("") && date_response.contains(searched_date))
+                {
+                    value = Float.parseFloat(value_response);
+                }
+            }
+
+            if(value > max_value)
+            {
+                max_value = value;
+            }
+        }
+        return max_value;
+    }
+
+    float getMaxQuantitativePrecipitation(int day)
+    {
+        String initial_date = getDate((0));
+        int curr_day = Integer.parseInt(initial_date.substring(8,10));
+        int curr_month = Integer.parseInt(initial_date.substring(5,7));
+        int curr_year = Integer.parseInt(initial_date.substring(0,4));
+        String searched_date = DateConverter.addDays(curr_day, curr_month, curr_year, day);
+
+        float max_count = 0;
+
+        for(JsonNode route: route_weather_responses)
+        {
+            String atValue = "/properties/quantitativePrecipitation/values/";
+            float count = 0;
+            String value_response = " ";
+            String date_response = "";
+            int accumulator = 0;
+
+            while (!value_response.equals(""))
+            {
+                value_response = route.at(atValue + accumulator + "/value").toPrettyString();
+                date_response = route.at(atValue + accumulator + "/validTime").toPrettyString();
+                accumulator++;
+                if (!value_response.equals("") && date_response.contains(searched_date))
+                {
+                    count += Float.parseFloat(value_response);
+                }
+            }
+
+            if(count > max_count)
+            {
+                max_count = count;
+            }
+        }
+        return max_count;
+    }
+
+    float getMaxSnowfallTotal(int day)
+    {
+        String initial_date = getDate((0));
+        int curr_day = Integer.parseInt(initial_date.substring(8,10));
+        int curr_month = Integer.parseInt(initial_date.substring(5,7));
+        int curr_year = Integer.parseInt(initial_date.substring(0,4));
+        String searched_date = DateConverter.addDays(curr_day, curr_month, curr_year, day);
+
+        float max_count = 0;
+
+        for(JsonNode route: route_weather_responses)
+        {
+            String atValue = "/properties/snowfallAmount/values/";
+            float count = 0;
+            String value_response = " ";
+            String date_response = "";
+            int accumulator = 0;
+
+            while (!value_response.equals(""))
+            {
+                value_response = route.at(atValue + accumulator + "/value").toPrettyString();
+                date_response = route.at(atValue + accumulator + "/validTime").toPrettyString();
+                accumulator++;
+                if (!value_response.equals("") && date_response.contains(searched_date))
+                {
+                    count += Float.parseFloat(value_response);
+                }
+            }
+
+            if(count > max_count)
+            {
+                max_count = count;
+            }
+        }
+        return max_count;
     }
 
     float getMaxHumidity(int day)
