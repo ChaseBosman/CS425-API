@@ -34,7 +34,7 @@ public class ResponseBuilder {
             dayForecast.put("maxAvgProbabilityOfPrecipitation",getMaxAvgProbabilityOfPrecipitation(currentDay));
             dayForecast.put("maxProbabilityOfPrecipitation",getMaxProbabilityOfPrecipitation(currentDay));
 
-            float visibility = getMinVisibility(currentDay);
+            double visibility = getMinVisibility(currentDay);
             if(visibility < Float.MAX_VALUE - 1) {
                 dayForecast.put("minVisibility", visibility);
             }
@@ -46,7 +46,7 @@ public class ResponseBuilder {
         }
     }
 
-    float getMaxTempValue(int day)
+    double getMaxTempValue(int day)
     {
         float maxVal = -100;
 
@@ -62,10 +62,10 @@ public class ResponseBuilder {
             }
         }
 
-        return maxVal;
+        return Math.round(maxVal * 100.0) / 100.0;
     }
 
-    float getMaxAvgProbabilityOfPrecipitation(int day)
+    double getMaxAvgProbabilityOfPrecipitation(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -102,10 +102,10 @@ public class ResponseBuilder {
                 max_avg = avg;
             }
         }
-        return max_avg;
+        return Math.round(max_avg * 100.0) / 100.0;
     }
 
-    float getMaxProbabilityOfPrecipitation(int day)
+    double getMaxProbabilityOfPrecipitation(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -139,10 +139,10 @@ public class ResponseBuilder {
                 max_value = value;
             }
         }
-        return max_value;
+        return Math.round(max_value * 100.0) / 100.0;
     }
 
-    float getMaxQuantitativePrecipitation(int day)
+    double getMaxQuantitativePrecipitation(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -176,10 +176,10 @@ public class ResponseBuilder {
                 max_count = count;
             }
         }
-        return max_count;
+        return Math.round(max_count * 100.0) / 100.0;
     }
 
-    float getMaxSnowfallTotal(int day)
+    double getMaxSnowfallTotal(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -213,10 +213,10 @@ public class ResponseBuilder {
                 max_count = count;
             }
         }
-        return max_count;
+        return Math.round(max_count * 100.0) / 100.0;
     }
 
-    float getMaxHumidity(int day)
+    double getMaxHumidity(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -245,10 +245,10 @@ public class ResponseBuilder {
                 }
             }
         }
-        return maxVal;
+        return Math.round(maxVal * 100.0) / 100.0;
     }
 
-    float getMinHumidity(int day)
+    double getMinHumidity(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -277,10 +277,10 @@ public class ResponseBuilder {
                 }
             }
         }
-        return minVal;
+        return Math.round(minVal * 100.0) / 100.0;
     }
 
-    float getMinVisibility(int day)
+    double getMinVisibility(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -309,7 +309,11 @@ public class ResponseBuilder {
                 }
             }
         }
-        return minVal;
+
+        if(minVal == Float.MAX_VALUE) {
+            return minVal;
+        }
+        return Math.round(minVal * 100.0) / 100.0;
     }
 
     String getDate(int day)
@@ -329,7 +333,7 @@ public class ResponseBuilder {
         return "";
     }
 
-    float getWindSpeed(int day)
+    double getWindSpeed(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -358,10 +362,10 @@ public class ResponseBuilder {
                 }
             }
         }
-        return maxVal;
+        return Math.round(maxVal * 100.0) / 100.0;
     }
 
-    float getWindGust(int day)
+    double getWindGust(int day)
     {
         String initial_date = getDate((0));
         int curr_day = Integer.parseInt(initial_date.substring(8,10));
@@ -390,10 +394,10 @@ public class ResponseBuilder {
                 }
             }
         }
-        return maxVal;
+        return Math.round(maxVal * 100.0) / 100.0;
     }
 
-    float getMinTempValue(int day)
+    double getMinTempValue(int day)
     {
         float minVal = 100;
 
@@ -409,7 +413,7 @@ public class ResponseBuilder {
             }
         }
 
-        return minVal;
+        return Math.round(minVal * 100.0) / 100.0;
     }
 
     String getResponse(){
